@@ -63,6 +63,22 @@ struct Trip: Codable, Identifiable, Hashable {
 
     var startDate: Date { Date(timeIntervalSince1970: start) }
     var km: Double { mileageKm > 0 ? mileageKm : distGpsKm }
+
+    func encode(to encoder: Encoder) throws {
+        var c = encoder.container(keyedBy: CodingKeys.self)
+        try c.encode(id, forKey: .id)
+        try c.encode(start, forKey: .start)
+        try c.encode(end, forKey: .end)
+        try c.encode(durS, forKey: .dur_s)
+        try c.encode(mileageKm, forKey: .mileage_km)
+        try c.encode(distGpsKm, forKey: .dist_gps_km)
+        try c.encode(speedMax, forKey: .speed_max)
+        try c.encode(speedMean, forKey: .speed_mean)
+        try c.encode(movingMean, forKey: .moving_mean)
+        try c.encode(overPct, forKey: .over_pct)
+        try c.encode(points, forKey: .points)
+        try c.encode(pts, forKey: .pts)
+    }
 }
 
 struct TripData: Codable {
@@ -88,6 +104,15 @@ struct TripData: Codable {
     var latest: Trip? {
         trips.max(by: { $0.start < $1.start })
     }
+
+    func encode(to encoder: Encoder) throws {
+        var c = encoder.container(keyedBy: CodingKeys.self)
+        try c.encodeIfPresent(sn, forKey: .sn)
+        try c.encodeIfPresent(vehicle, forKey: .vehicle)
+        try c.encodeIfPresent(fetchedAt, forKey: .fetched_at)
+        try c.encodeIfPresent(speedLimitKmh, forKey: .speed_limit_kmh)
+        try c.encode(trips, forKey: .trips)
+    }
 }
 
 struct RefreshStatus: Codable {
@@ -106,5 +131,15 @@ struct RefreshStatus: Codable {
         elapsed = try? c.decodeIfPresent(Int.self, forKey: .elapsed)
         fetchedAt = try? c.decodeIfPresent(String.self, forKey: .fetched_at)
         trips = try? c.decodeIfPresent(Int.self, forKey: .trips)
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var c = encoder.container(keyedBy: CodingKeys.self)
+        try c.encode(running, forKey: .running)
+        try c.encodeIfPresent(ok, forKey: .ok)
+        try c.encodeIfPresent(error, forKey: .error)
+        try c.encodeIfPresent(elapsed, forKey: .elapsed)
+        try c.encodeIfPresent(fetchedAt, forKey: .fetched_at)
+        try c.encodeIfPresent(trips, forKey: .trips)
     }
 }
