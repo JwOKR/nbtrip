@@ -17,7 +17,7 @@ on:
 
 jobs:
   build:
-    runs-on: macos-14
+    runs-on: macos-15
     env:
       SERVER_URL: ${{ inputs.server_url || vars.NB_SERVER_URL }}
       REFRESH_KEY: ${{ inputs.refresh_key || secrets.NB_REFRESH_KEY }}
@@ -25,6 +25,18 @@ jobs:
       BASIC_PASS: ${{ secrets.NB_BASIC_PASS }}
     steps:
       - uses: actions/checkout@v4
+
+      - name: Select Xcode
+        id: xcode
+        run: |
+          XC=$(ls -d /Applications/Xcode_16*.app 2>/dev/null | sort -V | tail -1)
+          if [ -n "$XC" ]; then
+            sudo xcode-select -s "$XC"
+          fi
+          xcodebuild -version
+          MAJOR=$(xcodebuild -version | head -1 | awk '{print $2}' | cut -d. -f1)
+          echo "major=$MAJOR" >> "$GITHUB_OUTPUT"
+          echo "Using Xcode major: $MAJOR"
 
       - name: Install XcodeGen
         run: brew install xcodegen
@@ -48,6 +60,13 @@ jobs:
 
       - name: Generate Xcode project
         run: cd ios && xcodegen generate
+
+      - name: Downgrade project format for Xcode < 16
+        if: steps.xcode.outputs.major != '16' && steps.xcode.outputs.major != '17'
+        run: |
+          cd ios
+          sed -i '' 's/objectVersion = 77/objectVersion = 56/' NbTrip.xcodeproj/project.pbxproj
+          grep -n "objectVersion" NbTrip.xcodeproj/project.pbxproj | head -3
 
       - name: Build (unsigned archive)
         run: |
