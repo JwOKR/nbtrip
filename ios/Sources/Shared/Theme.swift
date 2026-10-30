@@ -8,6 +8,14 @@ extension Color {
     static let nbAmber = Color(red: 0.85, green: 0.55, blue: 0.10)
 }
 
+// 让 .foregroundStyle(.nbAccent) / .tint(.nbAccent) 这类 ShapeStyle 位置也能用自定义色
+extension ShapeStyle where Self == Color {
+    static var nbAccent: Color { Color.nbAccent }
+    static var nbRed: Color { Color.nbRed }
+    static var nbOk: Color { Color.nbOk }
+    static var nbAmber: Color { Color.nbAmber }
+}
+
 extension Double {
     var kmh: String { String(format: "%.1f", self) }
     var km: String { String(format: "%.1f", self) }
