@@ -31,7 +31,7 @@ jobs:
 
       - name: Inject defaults into Config.swift
         run: |
-          cd ios/NbTrip
+          cd ios
           python3 - << 'EOF'
           import os
           p = "Sources/Shared/Config.swift"
@@ -47,11 +47,11 @@ jobs:
           EOF
 
       - name: Generate Xcode project
-        run: cd ios/NbTrip && xcodegen generate
+        run: cd ios && xcodegen generate
 
       - name: Build (unsigned archive)
         run: |
-          cd ios/NbTrip
+          cd ios
           set -o pipefail
           xcodebuild -project NbTrip.xcodeproj \
             -scheme NbTrip \
@@ -67,7 +67,7 @@ jobs:
 
       - name: Package unsigned IPA
         run: |
-          cd ios/NbTrip
+          cd ios
           mkdir -p Payload
           cp -R build/NbTrip.xcarchive/Products/Applications/NbTrip.app Payload/
           zip -qry NbTrip-unsigned.ipa Payload
@@ -75,10 +75,10 @@ jobs:
 
       - name: Show embedded extensions
         run: |
-          ls ios/NbTrip/Payload/NbTrip.app/PlugIns/ 2>/dev/null || echo "no PlugIns dir!"
+          ls ios/Payload/NbTrip.app/PlugIns/ 2>/dev/null || echo "no PlugIns dir!"
 
       - uses: actions/upload-artifact@v4
         with:
           name: NbTrip-unsigned-ipa
-          path: ios/NbTrip/NbTrip-unsigned.ipa
+          path: ios/NbTrip-unsigned.ipa
           retention-days: 30
